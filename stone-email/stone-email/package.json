@@ -1,0 +1,47 @@
+{
+  "name": "stone-email-skill",
+  "version": "1.0.0",
+  "description": "通用邮件收发 Skill for OpenClaw - 支持腾讯/网易/Gmail 等",
+  "main": "email_tool.py",
+  "bin": {
+    "email-skill": "./bin/email"
+  },
+  "scripts": {
+    "init": "node scripts/init.js",
+    "test": "node scripts/test-connection.js",
+    "postinstall": "cp config.example.json config.json 2>/dev/null || true"
+  },
+  "keywords": [
+    "email",
+    "openclaw",
+    "skill",
+    "smtp",
+    "imap",
+    "tencent",
+    "netease",
+    "gmail"
+  ],
+  "author": "AI Assistant",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/hao65103940/clawskillsvault.git"
+  },
+  "dependencies": {
+    "imap": "^0.8.19",
+    "smtp-connection": "^4.0.1"
+  },
+  "engines": {
+    "node": ">=14.0.0",
+    "python": ">=3.6.0"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "templates/",
+    "email_tool.py",
+    "config.example.json",
+    "SKILL.md",
+    "README.md"
+  ]
+}

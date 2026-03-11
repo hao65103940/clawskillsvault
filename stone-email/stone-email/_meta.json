@@ -1,0 +1,13 @@
+{
+  "name": "stone-email",
+  "version": "1.0.0",
+  "description": "通用邮件收发工具 - 支持腾讯/网易/Gmail/QQ 等",
+  "author": "AI Assistant",
+  "installedAt": "2026-03-05T19:35:00+08:00",
+  "source": "local",
+  "bins": ["email"],
+  "scripts": {
+    "read": "python3 email_tool.py read",
+    "send": "python3 email_tool.py send"
+  }
+}

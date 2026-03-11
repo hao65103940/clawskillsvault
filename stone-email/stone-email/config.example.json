@@ -1,0 +1,41 @@
+{
+  "_comment": "邮件配置 - 请复制为 config.json 并修改",
+  "_security": "此文件包含敏感信息，请勿提交到 Git！",
+  "email": "your-email@example.com",
+  "password": "your-auth-code-or-password",
+  "imap_server": "imap.exmail.qq.com",
+  "imap_port": 993,
+  "smtp_server": "smtp.exmail.qq.com",
+  "smtp_port": 587,
+  "provider": "tencent",
+  "_providers": {
+    "tencent": {
+      "name": "腾讯企业邮",
+      "imap_server": "imap.exmail.qq.com",
+      "imap_port": 993,
+      "smtp_server": "smtp.exmail.qq.com",
+      "smtp_port": 587
+    },
+    "netease": {
+      "name": "网易企业邮",
+      "imap_server": "imap.qiye.163.com",
+      "imap_port": 993,
+      "smtp_server": "smtp.qiye.163.com",
+      "smtp_port": 587
+    },
+    "163": {
+      "name": "163 邮箱",
+      "imap_server": "imap.163.com",
+      "imap_port": 993,
+      "smtp_server": "smtp.163.com",
+      "smtp_port": 587
+    },
+    "gmail": {
+      "name": "Gmail",
+      "imap_server": "imap.gmail.com",
+      "imap_port": 993,
+      "smtp_server": "smtp.gmail.com",
+      "smtp_port": 587
+    }
+  }
+}

@@ -1,0 +1,4 @@
+#!/bin/bash
+# 腾讯企业邮 Skill 入口脚本
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+python3 "$SCRIPT_DIR/email_tool.py" "$@"
