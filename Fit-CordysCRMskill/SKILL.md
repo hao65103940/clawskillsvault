@@ -1,0 +1,130 @@
+---
+name: cordys-crm
+description: |
+   Cordys CRM CLI 指令映射技能，本技能用于将自然语言需求精准转换为可执行的 `cordys crm` 标准命令，确保输出稳定、可预测、无歧义。
+    
+    【核心能力】
+    - 自动识别用户意图（列表 / 搜索 / 详情 / 跟进 / 原始接口）
+    - 自动识别模块（lead / account / opportunity / contract 等）
+    - 自动补全 JSON 参数
+    - 自动构造 filters / sort / combineSearch
+    - 自动补充分页默认值
+    - 支持二级模块（如 contract/payment-plan）
+
+---
+
+# Cordys CRM CLI 使用说明
+
+## 📋 查询规则（必读）
+
+**所有 CRM 查询前必须先阅读并遵循：** `references/query-rules.md`
+
+**核心规则：**
+1. **使用 `page` 命令**，不要用 `search`（已废弃）
+2. **完整 JSON 结构**：必须包含 `current`, `pageSize`, `sort`, `combineSearch`, `keyword`, `viewId`, `filters`
+3. **字段 ID 映射**：参考 `references/field-mappings.md`
+4. **区域映射**：参考 `references/region-mapping.md`
+5. **关联查询**：两步走（先查主模块拿 ID，再查关联模块）
+
+**示例（上周东区线索）：**
+```bash
+cordys crm page lead '{
+  "current": 1,
+  "pageSize": 30,
+  "sort": {"createTime": "desc"},
+  "combineSearch": {
+    "searchMode": "AND",
+    "conditions": [
+      {"value": ["东区"], "operator": "IN", "name": "1751888184000015"},
+      {"name": "createTime", "operator": "DYNAMICS", "value": "LAST_WEEK"}
+    ]
+  },
+  "keyword": "",
+  "viewId": "ALL",
+  "filters": []
+}'
+```
+
+该技能封装了 `cordys` 命令，帮助把自然语言转换成标准 CLI 调用。针对不同模块（lead/account/opportunity/pool 等）和常见操作（查询、分页、搜索、跟进计划/记录、原始接口）提供明确的映射策略。
+
+## CLI 版本选择
+
+# CLI 版本选择（优先 Shell）
+
+本项目提供两个版本 CLI：
+
+| 版本 | 推荐程度 | 说明 |
+|----|----|----|
+| **Shell 版本 `cordys`** |  推荐 | 无需 Python，执行更轻量 |
+| Python 版本 `cordys.py` | 备用 | 需要 Python3 + requests |
+
+**默认优先使用 Shell 版本。**
+
+Python 版本仅在以下情况使用：
+
+- 系统不支持 Bash
+- Windows 环境
+- Shell CLI 不可用
+
+## 基本流程
+1. 明确意图：列出/搜索/获取/跟进。
+2. 指定目标模块（如 `lead`、`opportunity`）。
+3. 根据需求补充关键词、过滤条件、排序或分页参数。
+4. 确认是否需要 JSON body（如 `search`、`follow plan`、`raw`）。
+5. 说明期望的输出形式（简短摘要/全部字段/只要某字段）。
+
+## 指令映射（常用）
+| 场景      | 建议命令                                              | 备注                                                     |
+|---------|---------------------------------------------------|--------------------------------------------------------|
+| 列表或分页查看 | `cordys crm page <module> ["keyword"]`            | 若用户只提关键词，会自动构造 `{keyword:..., current:1, pageSize:30}` |
+| 搜索      | `cordys crm search <module> <JSON body>`          | 需 `combineSearch`、`filters`、`sort`，可补全默认值              |
+| 详情      | `cordys crm get <module> <id>`                    | 直接拉取记录                                                 |
+| 跟进计划或记录 | `cordys crm follow plan 或 record <module> <body>` | `body` 应包含 `sourceId`，计划还需要 `status`/`myPlan` |
+| 原始接口    | `cordys raw <METHOD> <PATH> [<body>]`             | 用于自定义端点或二级模块，如 `/contract/payment-plan`                |
+
+## 高级技巧
+- 搜索命令需要完整 JSON，若用户只给关键词或简单条件，可自动补齐 `current=1`、`pageSize=30`、`combineSearch={...}`。
+- 过滤器格式为 `{"field":"字段","operator":"equals","value":"值"}`，排序格式为 `{"field":"desc"}`。
+- 支持二级模块（例如 `contract/payment-plan`、`contract/payment-record`），CLI 命令形式仍为 `cordys crm page <module>`。
+- `cordys raw` 可以按原始 GET/POST 访问 `/settings/fields`、`/contract/business-title` 等非标准接口。
+
+## 常用示例
+```bash
+# 分页列表（带关键词）
+cordys crm page lead "测试"
+
+# 搜索（完整 JSON）
+cordys crm search opportunity '{"current":1,"pageSize":30,"combineSearch":{"searchMode":"AND","conditions":[]},"keyword":"电力","filters":[]}'
+
+# 跟进计划
+cordys crm follow plan account '{"sourceId":"123","current":1,"pageSize":10,"status":"UNFINISHED","myPlan":false}'
+
+# 原始 API 调用
+cordys raw GET /settings/fields?module=account
+
+# 获取组织架构
+cordys crm org
+
+# 查询产品
+cordys crm product "测试产品"
+
+# 获取联系人
+cordys crm contact account "927627065163785"
+```
+
+## 环境变量（必须）
+```bash
+CORDYS_ACCESS_KEY=xxx
+CORDYS_SECRET_KEY=xxx
+CORDYS_CRM_DOMAIN=https://your-cordys-domain
+```
+
+## 助手判断意图的提示词
+- “列表”/“分页查看”：映射到 `page` 指令；可补上关键词或 filters
+- “搜索”/“筛选”：使用 `search`，补齐 JSON body
+- “查看详情”：用 `get` + 决定的 ID
+- “跟进”：「跟进计划」→ `follow plan`，「跟进记录」→ `follow record`
+
+## 日志与异常
+- CLI 默认读取 `.env`，也可通过前置环境变量覆盖。
+- 若返回 `code` 非 `100200`，要记录 `message` 并向用户说明。
