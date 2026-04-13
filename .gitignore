@@ -1,0 +1,9 @@
+# 敏感文件
+.env
+.env.*
+!*.env.example
+config.json
+!*.example.json
+*.log
+node_modules/
+.git/
